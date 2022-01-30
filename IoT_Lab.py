@@ -4,6 +4,7 @@ print("Xin chào ThingsBoard")
 import paho.mqtt.client as mqttclient
 import time
 import json
+import geocoder
 
 BROKER_ADDRESS = "demo.thingsboard.io"
 PORT = 1883
@@ -49,13 +50,19 @@ humi = 50
 light_intesity = 100
 counter = 0
 
-longitude = 106.6297
-latitude = 10.8231
+#example
+# longitude = 106.6297
+# latitude = 10.8231
+
+
+
 
 while True:
     collect_data = {'temperature': temp, 'humidity': humi, 'light':light_intesity,'longitude':longitude,'latitude':latitude}
     temp += 1
     humi += 1
     light_intesity += 1
+    g = geocoder.ip('me')
+    latitude,longitude = g.latlng
     client.publish('v1/devices/me/telemetry', json.dumps(collect_data), 1)
     time.sleep(10)
