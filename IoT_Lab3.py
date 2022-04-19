@@ -11,7 +11,21 @@ mess = ""
 #TODO: Add your token and your comport
 #Please check the comport in the device manager
 THINGS_BOARD_ACCESS_TOKEN = "vQMcTxV3eOJG6fjvnuIH"
-bbc_port = "COM4"
+
+def getPort():
+    ports = serial.tools.list_ports.comports()
+    N = len(ports)
+    bbc_port = ""
+    for i in range(0,N):
+        port = ports[i]
+        s = str(port)
+        if "USB Serial Device" in s:
+            s = s.split(" ")
+            bbc_port = s[0]
+    return bbc_port
+
+bbc_port = getPort()
+
 if len(bbc_port) > 0:
     try: 
         ser = serial.Serial(port=bbc_port, baudrate=115200)
@@ -24,8 +38,9 @@ def processData(data):
     splitData = data.split(":")
     # print(splitData)
     #TODO: Add your source code to publish data to the server
-    if splitData[0] in ["temperature","light"]:
-        z = {splitData[0]: splitData[1]}  #pack to form {"key": value}
+    if splitData[1] in ["temp","light"]:
+        key = "temperature" if splitData[1] == "temp" else "light" #set key
+        z = {key: splitData[2]}  #pack to form {key: value}
         payload = json.dumps(dict(z)) # to json
         # print(payload)
         client.publish('v1/devices/me/telemetry', payload, 1)
